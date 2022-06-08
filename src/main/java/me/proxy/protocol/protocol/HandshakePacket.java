@@ -16,7 +16,7 @@ public class HandshakePacket extends AbstractPacket {
     boolean allowed;
 
     public HandshakePacket() {
-        super((short) 0);
+        super(0);
     }
 
     @Override

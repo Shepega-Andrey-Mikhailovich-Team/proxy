@@ -5,7 +5,6 @@ import me.proxy.protocol.exception.BadPacketException;
 import me.proxy.protocol.protocol.HandshakePacket;
 import me.proxy.protocol.protocol.UserMessagePacket;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketMapper {
@@ -29,7 +28,7 @@ public class PacketMapper {
     }
 
     public static void writePacket(AbstractPacket packet, ByteBuf buf) {
-        buf.writeShort(packet.getId());
+        buf.writeInt(packet.getId());
         packet.write(buf);
     }
 

@@ -9,7 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
 import me.proxy.command.handler.CommandHandler;
-import me.proxy.command.handler.JLineCommandHandler;
+import me.proxy.command.handler.StdCommandHandler;
 import me.proxy.config.Settings;
 import me.proxy.connection.ChatConnection;
 import me.proxy.helpers.CommonHelper;
@@ -51,8 +51,8 @@ public class ProxyMain {
 
         // Initial command handler?
         // TODO: add desktop proxy version support
-        // this.commandHandler = new StdCommandHandler(this, true);
-        this.commandHandler = new JLineCommandHandler(this);
+        this.commandHandler = new StdCommandHandler(this, true);
+        // this.commandHandler = new JLineCommandHandler(this);
         CommonHelper.newThread("Command Thread", false, this.commandHandler).start();
     }
 
