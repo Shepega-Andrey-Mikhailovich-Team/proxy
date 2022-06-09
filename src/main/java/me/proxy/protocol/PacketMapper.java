@@ -3,6 +3,7 @@ package me.proxy.protocol;
 import io.netty.buffer.ByteBuf;
 import me.proxy.protocol.exception.BadPacketException;
 import me.proxy.protocol.protocol.HandshakePacket;
+import me.proxy.protocol.protocol.LoginPacket;
 import me.proxy.protocol.protocol.UserMessagePacket;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,8 @@ public class PacketMapper {
 
     static {
         packets.put(0, HandshakePacket.class);
-        packets.put(1, UserMessagePacket.class);
+        packets.put(1, LoginPacket.class);
+        packets.put(2, UserMessagePacket.class);
     }
 }
 

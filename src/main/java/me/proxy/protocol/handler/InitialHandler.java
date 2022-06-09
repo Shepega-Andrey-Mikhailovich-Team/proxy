@@ -5,21 +5,22 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import me.proxy.ProxyMain;
 import me.proxy.connection.ChatConnection;
-import me.proxy.connection.Connection;
 import me.proxy.helpers.LogHelper;
 import me.proxy.protocol.AbstractPacket;
 import me.proxy.protocol.protocol.HandshakePacket;
+import me.proxy.protocol.protocol.LoginPacket;
 
 import java.net.InetSocketAddress;
 
 public class InitialHandler extends SimpleChannelInboundHandler<AbstractPacket> {
+
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         LogHelper.info("[/" + InitialHandler.getChannelIp(ctx.channel()) + "] -> InitialHandler has connected");
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         LogHelper.info("[/" + InitialHandler.getChannelIp(ctx.channel()) + "] InitialHandler has disconneted.");
     }
 
@@ -30,28 +31,41 @@ public class InitialHandler extends SimpleChannelInboundHandler<AbstractPacket> 
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, AbstractPacket packet) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, AbstractPacket packet) {
         if (packet instanceof HandshakePacket) {
-            LogHelper.info("[/" + InitialHandler.getChannelIp(channelHandlerContext.channel()) + "] -> InitialHandler has read handshake: " + packet.toString());
+            if (LogHelper.isDebugEnabled())
+                LogHelper.info("[/" + InitialHandler.getChannelIp(channelHandlerContext.channel()) + "] -> InitialHandler has read handshake: " + packet.toString());
+
             HandshakePacket handshakePacket = (HandshakePacket) packet;
-            if (ProxyMain.getInstance().getUser(handshakePacket.getName()) != null) {
-                handshakePacket.setAllowed(false);
-                handshakePacket.setCancelReason("Username already exists");
-                channelHandlerContext.writeAndFlush(handshakePacket);
+
+            // hostname check
+
+            channelHandlerContext.writeAndFlush(handshakePacket);
+            return;
+        }
+
+        if (packet instanceof LoginPacket) {
+            LoginPacket loginPacket = (LoginPacket) packet;
+
+            if (ProxyMain.getInstance().getUser(loginPacket.getUserName()) != null) {
+                loginPacket.setAllowed(false);
+                loginPacket.setReason("Username already exists");
+                channelHandlerContext.writeAndFlush(loginPacket);
                 channelHandlerContext.close();
                 return;
             }
 
-            Connection connection = new ChatConnection(channelHandlerContext, handshakePacket.getName());
-            handshakePacket.setAllowed(true);
-            channelHandlerContext.writeAndFlush(handshakePacket);
+            ChatConnection chatConnection = new ChatConnection(channelHandlerContext, loginPacket.getUserName());
+            chatConnection.onConnect();
+            loginPacket.setAllowed(true);
+
             channelHandlerContext.pipeline().removeLast();
-            connection.onConnect();
-            channelHandlerContext.pipeline().addLast(new PacketHandler(connection));
-        } else {
-            channelHandlerContext.close();
-            LogHelper.info("[/" + InitialHandler.getChannelIp(channelHandlerContext.channel()) + "] InitialHandler ERROR: the first packet should be Handshake!");
+            channelHandlerContext.pipeline().addLast(new PacketHandler(chatConnection));
+            return;
         }
+
+        channelHandlerContext.close();
+        LogHelper.info("[/" + InitialHandler.getChannelIp(channelHandlerContext.channel()) + "] InitialHandler ERROR: the first packet should be Handshake!");
     }
 
     public static String getChannelIp(Channel channel) {

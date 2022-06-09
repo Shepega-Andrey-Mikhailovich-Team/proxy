@@ -2,19 +2,19 @@ package me.proxy.protocol.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import me.proxy.ProxyMain;
 import me.proxy.connection.Connection;
 import me.proxy.helpers.LogHelper;
 import me.proxy.protocol.AbstractPacket;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PacketHandler extends SimpleChannelInboundHandler<AbstractPacket> {
 
     private final Connection connection;
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         this.connection.onDisconnect();
     }
 

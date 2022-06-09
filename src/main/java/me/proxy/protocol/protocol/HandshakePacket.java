@@ -12,8 +12,7 @@ import me.proxy.protocol.AbstractPacket;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HandshakePacket extends AbstractPacket {
 
-    String name, cancelReason;
-    boolean allowed;
+    String hostname;
 
     public HandshakePacket() {
         super(0);
@@ -21,16 +20,12 @@ public class HandshakePacket extends AbstractPacket {
 
     @Override
     protected void read(ByteBuf buf) {
-        this.name = HandshakePacket.readString(buf);
-        this.cancelReason = HandshakePacket.readString(buf);
-        this.allowed = buf.readBoolean();
+        this.hostname = HandshakePacket.readString(buf);
     }
 
     @Override
     protected void write(ByteBuf buf) {
-        HandshakePacket.writeString(buf, this.name);
-        HandshakePacket.writeString(buf, this.cancelReason);
-        buf.writeBoolean(this.allowed);
+        HandshakePacket.writeString(buf, this.hostname);
     }
 }
 
