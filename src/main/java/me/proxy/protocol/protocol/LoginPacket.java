@@ -12,10 +12,8 @@ public class LoginPacket extends AbstractPacket {
     private String userName, reason;
     private boolean allowed;
 
-    public LoginPacket(String userName, String reason) {
+    public LoginPacket() {
         super(1);
-        this.userName = userName;
-        this.reason = reason;
     }
 
     @Override

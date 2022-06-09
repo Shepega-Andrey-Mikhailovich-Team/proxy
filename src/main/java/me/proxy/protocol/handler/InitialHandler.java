@@ -58,7 +58,9 @@ public class InitialHandler extends SimpleChannelInboundHandler<AbstractPacket> 
             ChatConnection chatConnection = new ChatConnection(channelHandlerContext, loginPacket.getUserName());
             chatConnection.onConnect();
             loginPacket.setAllowed(true);
+            channelHandlerContext.writeAndFlush(loginPacket);
 
+            LogHelper.info("test");
             channelHandlerContext.pipeline().removeLast();
             channelHandlerContext.pipeline().addLast(new PacketHandler(chatConnection));
             return;
